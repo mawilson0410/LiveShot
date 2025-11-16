@@ -5,15 +5,14 @@ import morgan from "morgan";
 import cors from "cors";
 import { initializeDatabase } from "./config/db.js";
 
+// So I can use .env for environment variables
 dotenv.config();
-
 const PORT = process.env.PORT || 3000;
 
+// Initialize Express app
 const app = express();
 
-
 //Middleware
-
 // Express.json parses the request body as JSON
 app.use(express.json());
 // Prevent Cross-Origin Resource Sharing (CORS) errors
@@ -22,7 +21,6 @@ app.use(cors());
 app.use(helmet());
 // Morgan will log my requests to the console
 app.use(morgan("dev"));
-
 
 // Only begin server once database is initialized successfully
   initializeDatabase().then(() => {
