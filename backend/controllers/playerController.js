@@ -109,3 +109,24 @@ export const deletePlayer = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal Server Error: " + error.message });
     }
 };
+
+export const getPlayerTests = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const tests = await sql`
+        SELECT * FROM test
+        WHERE player_id = ${id}
+        `;
+
+        //Check if tests were not found
+        if (tests.length === 0) {
+            return res.status(404).json({ success: false, message: "Tests not found" });
+        }
+
+        res.status(200).json({ success: true, data: tests });
+    } catch (error) {
+        //Error Handling
+        console.log("Error in getPlayerTests: " + error.message);
+        res.status(500).json({ success: false, message: "Internal Server Error: " + error.message });
+    }
+};

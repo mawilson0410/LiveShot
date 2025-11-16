@@ -4,7 +4,8 @@ import {
     createPlayer,
     getPlayer,
     updatePlayer,
-    deletePlayer
+    deletePlayer,
+    getPlayerTests
 } from "../controllers/playerController.js";
 
 const router = express.Router();
@@ -19,5 +20,7 @@ router.post("/", createPlayer);
 router.put("/:id", updatePlayer);
 //Delete a player by their id
 router.delete("/:id", deletePlayer);
+//Get tests for a player by their id
+router.get("/:id/tests", getPlayerTests);
 
 export default router;
