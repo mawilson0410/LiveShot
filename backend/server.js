@@ -25,7 +25,7 @@ app.use(helmet());
 app.use(morgan("dev"));
 
 //Routes
-app.use("/api/player", playerRoutes);
+app.use("/api/players", playerRoutes);
 
 // Only begin server once database is initialized successfully
   initializeDatabase().then(() => {
