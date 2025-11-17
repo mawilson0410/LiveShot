@@ -1,5 +1,5 @@
 import { Link, } from "react-router-dom";
-import { ShoppingCartIcon } from "lucide-react";
+import { Medal } from "lucide-react";
 import { useState } from "react";
 import ThemeSelector from "./ThemeSelector.tsx";
 import StartTestModal from "./StartTestModal.tsx";
@@ -22,7 +22,7 @@ function Navbar() {
             <div className="flex-1 lg:flex-none">
               <Link to="/" className="hover:opacity-80 transition-opacity">
                 <div className="flex items-center gap-2">
-                  <ShoppingCartIcon className="size-9 text-primary" />
+                  <Medal className="size-9 text-primary" />
                   <span
                     className="font-sans font-bold tracking-widest text-2xl 
                       bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary"
