@@ -8,7 +8,6 @@ export const getPlayers = async (req, res) => {
         ORDER BY created_at DESC
         `;
 
-        console.log("Fetched players");
         res.status(200).json({ success: true, data: players });
     } catch (error) {
         //Error Handling
@@ -17,6 +16,7 @@ export const getPlayers = async (req, res) => {
     }
 };
 
+//Create a new player
 export const createPlayer = async (req, res) => {
     //Destructure request to get name, team, and number
     const { name, team, number } = req.body;
@@ -40,6 +40,7 @@ export const createPlayer = async (req, res) => {
     }
 };
 
+//Get a single player by their id
 export const getPlayer = async (req, res) => {
     const { id } = req.params;
 
@@ -49,11 +50,12 @@ export const getPlayer = async (req, res) => {
         WHERE id = ${id}
         `;
 
+        //Check if player was not found
         if (player.length === 0) {
             return res.status(404).json({ success: false, message: "Player not found" });
         }
 
-        res.status(200).json({ success: true, data: player[0] });
+        res.status(200).json({ success: true, data: player });
     } catch (error) {
         //Error Handling
         console.log("Error in getPlayer: " + error.message);
@@ -61,6 +63,7 @@ export const getPlayer = async (req, res) => {
     }
 };
 
+//Update a player by their id
 export const updatePlayer = async (req, res) => {
     const { id } = req.params;
     //Destructure request to get name, team, and number
@@ -87,6 +90,7 @@ export const updatePlayer = async (req, res) => {
     }
 };
 
+//Delete a player by their id
 export const deletePlayer = async (req, res) => {
     const { id } = req.params;
 
@@ -110,6 +114,7 @@ export const deletePlayer = async (req, res) => {
     }
 };
 
+//Get tests for a player by their id
 export const getPlayerTests = async (req, res) => {
     const { id } = req.params;
     try {

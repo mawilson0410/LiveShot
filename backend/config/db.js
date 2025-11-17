@@ -24,18 +24,40 @@ export async function initializeDatabase() {
         )
       `;
 
+      // Create test preset table
+      await sql`
+        CREATE TABLE IF NOT EXISTS test_preset (
+            id BIGSERIAL PRIMARY KEY,
+            name TEXT NOT NULL,
+            key TEXT NOT NULL,
+            description TEXT NOT NULL,
+            total_shots INTEGER NOT NULL
+        )
+      `;
+
       // Create test table with foreign key to player
       await sql`
         CREATE TABLE IF NOT EXISTS test (
             id BIGSERIAL PRIMARY KEY,
             player_id BIGINT NOT NULL REFERENCES player(id) ON DELETE CASCADE,
-            test_type TEXT NOT NULL,
-            config_json JSONB,
+            test_preset_id BIGINT NOT NULL REFERENCES test_preset(id) ON DELETE CASCADE,
             total_makes INTEGER NOT NULL DEFAULT 0,
             total_attempts INTEGER NOT NULL DEFAULT 0,
             started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-            completed_at TIMESTAMPTZ,
-            notes TEXT
+            completed_at TIMESTAMPTZ
+        )
+      `;
+
+      // Create test preset locations table
+      await sql`
+        CREATE TABLE IF NOT EXISTS test_preset_locations (
+            id BIGSERIAL PRIMARY KEY,
+            test_preset_id BIGINT NOT NULL REFERENCES test_preset(id) ON DELETE CASCADE,
+            location_name TEXT NOT NULL,
+            location_key TEXT NOT NULL,
+            shot_order INTEGER NOT NULL,
+            shot_value INTEGER NOT NULL,
+            planned_shots INTEGER NOT NULL
         )
       `;
 
@@ -45,7 +67,7 @@ export async function initializeDatabase() {
             id BIGSERIAL PRIMARY KEY,
             test_id BIGINT NOT NULL REFERENCES test(id) ON DELETE CASCADE,
             shot_index INTEGER NOT NULL,
-            court_location TEXT NOT NULL CHECK (court_location IN ('left_corner', 'left_wing', 'top', 'right_wing', 'right_corner')),
+            court_location TEXT NOT NULL CHECK (court_location IN ('left_corner', 'left_wing', 'top', 'right_wing', 'right_corner', 'left_corner_key', 'left_wing_key', 'top_key', 'right_wing_key', 'right_corner_key')),
             made BOOLEAN NOT NULL,
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
