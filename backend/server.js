@@ -7,6 +7,7 @@ import { initializeDatabase } from "./config/db.js";
 
 import playerRoutes from "./routes/playerRoutes.js";
 import testRoutes from "./routes/testRoutes.js";
+import testPresetRoutes from "./routes/testPresetRoutes.js";
 
 // So I can use .env for environment variables
 dotenv.config();
@@ -28,6 +29,7 @@ app.use(morgan("dev"));
 //Routes
 app.use("/api/players", playerRoutes);
 app.use("/api/tests", testRoutes);
+app.use("/api/test-presets", testPresetRoutes);
 
 // Only begin server once database is initialized successfully
   initializeDatabase().then(() => {
