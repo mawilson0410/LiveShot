@@ -71,5 +71,23 @@ export const testService = {
     const response = await api.post<ApiResponse<any>>('/api/tests', testData);
     return response.data.data;
   },
+
+  // Get a single test by ID (with locations)
+  getTestById: async (id: number) => {
+    const response = await api.get<ApiResponse<any>>(`/api/tests/${id}`);
+    return response.data.data;
+  },
+
+  // Record all shots for a test
+  recordShots: async (testId: number, shots: Array<{ shot_index: number; court_location: string; made: boolean }>) => {
+    const response = await api.post<ApiResponse<any>>(`/api/tests/${testId}/shots`, { shots });
+    return response.data.data;
+  },
+
+  // Mark test as complete
+  completeTest: async (testId: number) => {
+    const response = await api.patch<ApiResponse<any>>(`/api/tests/${testId}/complete`);
+    return response.data.data;
+  },
 };
 
