@@ -1,8 +1,8 @@
-import daisyui from 'daisyui';
+import daisyui from "daisyui";
 
- /** @type {import('tailwindcss').Config} */
- export default {
-  content: ["./src/**/*.{html,js}"],
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {},
   },
@@ -24,4 +24,4 @@ import daisyui from 'daisyui';
       "dracula",
     ],
   },
-}
+};

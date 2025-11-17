@@ -6,9 +6,12 @@ import PlayerPage from "./pages/PlayerPage"
 import TestPage from "./pages/TestPage"
 import ActiveTestPage from "./pages/ActiveTestPage"
 
+import { useThemeStore } from "./store/useThemeStore.ts";
+
 function App() {
+  const { theme } = useThemeStore() as { theme: string };
   return (
-    <div className="min-h-screen bg-base-200 transition-colors duration-300">
+    <div className="min-h-screen bg-base-200 transition-colors duration-300" data-theme={theme}>
 
       <Navbar />
       <Routes>

@@ -4,8 +4,31 @@ import { sql } from "../config/db.js";
 export const getTests = async (req, res) => {
     try {
         const tests = await sql`
-        SELECT * FROM test
-        ORDER BY created_at DESC
+        SELECT 
+            t.id,
+            t.total_makes,
+            t.total_attempts,
+            t.started_at,
+            t.completed_at,
+            json_build_object(
+                'id', p.id,
+                'name', p.name,
+                'team', p.team,
+                'number', p.number
+            ) as player,
+            json_build_object(
+                'id', tp.id,
+                'name', tp.name,
+                'key', tp.key,
+                'description', tp.description,
+                'total_shots', tp.total_shots
+            ) as test_preset
+        FROM test t
+        INNER JOIN player p ON t.player_id = p.id
+        INNER JOIN test_preset tp ON t.test_preset_id = tp.id
+        WHERE t.completed_at IS NOT NULL
+        ORDER BY t.started_at DESC
+        LIMIT 20
         `;
 
         res.status(200).json({ success: true, data: tests });

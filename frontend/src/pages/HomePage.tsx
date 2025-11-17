@@ -1,8 +1,10 @@
-import React from 'react'
+import RecentTests from '../components/RecentTests'
 
 const HomePage = () => {
   return (
-    <div>HomePage</div>
+    <div className="min-h-screen">
+      <RecentTests />
+    </div>
   )
 }
 
