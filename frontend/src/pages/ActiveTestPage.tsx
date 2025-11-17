@@ -85,18 +85,18 @@ export default function ActiveTestPage() {
     }
   }, [id, navigate]);
 
-  // Countdown sequence with toast notifications
+  // Countdown sequence
   useEffect(() => {
     if (testStatus === 'countdown' && testData && !countdownStartedRef.current) {
       countdownStartedRef.current = true;
       const countdown = async () => {
-        toast('3', { duration: 1000, icon: '🏀' });
+        toast('3', { duration: 1000, icon: '🏀', id: 'countdown-3' });
         await new Promise((resolve) => setTimeout(resolve, 1000));
-        toast('2', { duration: 1000, icon: '🏀' });
+        toast('2', { duration: 1000, icon: '🏀', id: 'countdown-2' });
         await new Promise((resolve) => setTimeout(resolve, 1000));
-        toast('1', { duration: 1000, icon: '🏀' });
+        toast('1', { duration: 1000, icon: '🏀', id: 'countdown-1' });
         await new Promise((resolve) => setTimeout(resolve, 1000));
-        toast('Begin!', { duration: 1000, icon: '🏀' });
+        toast('Begin!', { duration: 1000, icon: '🏀', id: 'countdown-begin' });
         await new Promise((resolve) => setTimeout(resolve, 1000));
         setTestStatus('active');
       };
@@ -141,7 +141,7 @@ export default function ActiveTestPage() {
       navigate(`/test/${id}`);
     } catch (error) {
       console.error('Error completing test:', error);
-      toast.error('Failed to save test results');
+      toast.error('Failed to save test results', { id: 'test-completion-error' });
       setTestStatus('active');
     }
   };
@@ -151,6 +151,7 @@ export default function ActiveTestPage() {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (testStatus === 'active') {
         e.preventDefault();
+        // TODO Find an alternative to this to prevnt user from adding tons of unfinished tests
         e.returnValue = '';
       }
     };

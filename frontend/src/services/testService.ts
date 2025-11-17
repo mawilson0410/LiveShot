@@ -89,5 +89,11 @@ export const testService = {
     const response = await api.patch<ApiResponse<any>>(`/api/tests/${testId}/complete`);
     return response.data.data;
   },
+
+  // Get all shots for a test
+  getTestShots: async (testId: number) => {
+    const response = await api.get<ApiResponse<any[]>>(`/api/tests/${testId}/shots`);
+    return response.data.data;
+  },
 };
 

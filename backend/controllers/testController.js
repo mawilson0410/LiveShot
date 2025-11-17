@@ -225,5 +225,27 @@ export const recordPlayerShot = async (req, res) => {
 };
 
 //Get all shots for a test by its id
-export const getTestShots = async (req, res) => {};
+export const getTestShots = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const shots = await sql`
+        SELECT 
+            id,
+            shot_index,
+            court_location,
+            made,
+            created_at
+        FROM shot
+        WHERE test_id = ${id}
+        ORDER BY shot_index ASC
+        `;
+
+        res.status(200).json({ success: true, data: shots });
+    } catch (error) {
+        //Error Handling
+        console.log("Error in getTestShots: " + error.message);
+        res.status(500).json({ success: false, message: "Internal Server Error: " + error.message });
+    }
+};
 
