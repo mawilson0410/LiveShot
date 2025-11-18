@@ -271,7 +271,7 @@ export default function ActiveTestPage() {
         ) : locationInfo ? (
           <>
             <div className="text-center mb-2">
-              <p className="text-sm text-base-content/70 mb-1">Current shooting from</p>
+              <p className="text-sm text-base-content/70 mb-1">Currently shooting from: </p>
               <p className="text-3xl md:text-4xl font-bold text-primary">
                 {locationInfo.location.location_name}
               </p>
@@ -423,7 +423,7 @@ export default function ActiveTestPage() {
                   (locationShotsCount[activeLocationKey] || 0) >= locationInfo.location.planned_shots
                 }
               >
-                Made
+                Make
               </button>
               <button
                 onClick={() => handleShot(false)}
