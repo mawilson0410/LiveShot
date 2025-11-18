@@ -67,5 +67,11 @@ export const playerService = {
     const response = await api.get<ApiResponse<any[]>>(`/api/players/${id}/tests`);
     return response.data.data;
   },
+
+  // Get player stats
+  getPlayerStats: async (id: number) => {
+    const response = await api.get<ApiResponse<any>>(`/api/players/${id}/stats`);
+    return response.data.data;
+  },
 };
 

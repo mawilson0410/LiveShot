@@ -55,7 +55,7 @@ export const getPlayer = async (req, res) => {
             return res.status(404).json({ success: false, message: "Player not found" });
         }
 
-        res.status(200).json({ success: true, data: player });
+        res.status(200).json({ success: true, data: player[0] });
     } catch (error) {
         //Error Handling
         console.log("Error in getPlayer: " + error.message);
@@ -119,19 +119,76 @@ export const getPlayerTests = async (req, res) => {
     const { id } = req.params;
     try {
         const tests = await sql`
-        SELECT * FROM test
-        WHERE player_id = ${id}
+        SELECT 
+            t.id,
+            t.total_makes,
+            t.total_attempts,
+            t.started_at,
+            t.completed_at,
+            json_build_object(
+                'id', tp.id,
+                'name', tp.name,
+                'key', tp.key,
+                'description', tp.description,
+                'total_shots', tp.total_shots
+            ) as test_preset
+        FROM test t
+        INNER JOIN test_preset tp ON t.test_preset_id = tp.id
+        WHERE t.player_id = ${id}
+        AND t.completed_at IS NOT NULL
+        ORDER BY t.completed_at DESC
         `;
-
-        //Check if tests were not found
-        if (tests.length === 0) {
-            return res.status(404).json({ success: false, message: "Tests not found" });
-        }
 
         res.status(200).json({ success: true, data: tests });
     } catch (error) {
         //Error Handling
         console.log("Error in getPlayerTests: " + error.message);
+        res.status(500).json({ success: false, message: "Internal Server Error: " + error.message });
+    }
+};
+
+//TODO Nightmare to fetch all these stats on the frontend, so putting it here in its own function but possibly not the best solution
+//Get player stats
+export const getPlayerStats = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const stats = await sql`
+        WITH player_tests AS (
+            SELECT 
+                t.id,
+                t.total_makes,
+                t.total_attempts,
+                t.completed_at
+            FROM test t
+            WHERE t.player_id = ${id}
+            AND t.completed_at IS NOT NULL
+        ),
+        player_shots AS (
+            SELECT 
+                s.made,
+                s.court_location,
+                COALESCE(tpl.shot_value, 0) as shot_value
+            FROM shot s
+            INNER JOIN test t ON s.test_id = t.id
+            LEFT JOIN test_preset_locations tpl ON t.test_preset_id = tpl.test_preset_id 
+                AND s.court_location = tpl.location_key
+            WHERE t.player_id = ${id}
+        )
+        SELECT 
+            COUNT(*) as total_tests,
+            COALESCE(SUM(total_attempts), 0) as total_attempts,
+            COALESCE(SUM(total_makes), 0) as total_makes,
+            (SELECT COALESCE(SUM(shot_value), 0) FROM player_shots WHERE made = true) as total_points,
+            COALESCE(ROUND(AVG(CASE WHEN total_attempts > 0 THEN (total_makes::numeric / total_attempts::numeric) * 100 ELSE 0 END), 2), 0) as avg_accuracy,
+            COALESCE(ROUND(MAX(CASE WHEN total_attempts > 0 THEN (total_makes::numeric / total_attempts::numeric) * 100 ELSE 0 END), 2), 0) as best_accuracy,
+            COALESCE(ROUND(MIN(CASE WHEN total_attempts > 0 THEN (total_makes::numeric / total_attempts::numeric) * 100 ELSE 0 END), 2), 0) as worst_accuracy
+        FROM player_tests
+        `;
+
+        res.status(200).json({ success: true, data: stats[0] });
+    } catch (error) {
+        //Error Handling
+        console.log("Error in getPlayerStats: " + error.message);
         res.status(500).json({ success: false, message: "Internal Server Error: " + error.message });
     }
 };

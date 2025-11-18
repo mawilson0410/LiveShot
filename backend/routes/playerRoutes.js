@@ -5,7 +5,8 @@ import {
     getPlayer,
     updatePlayer,
     deletePlayer,
-    getPlayerTests
+    getPlayerTests,
+    getPlayerStats
 } from "../controllers/playerController.js";
 
 const router = express.Router();
@@ -22,5 +23,7 @@ router.put("/:id", updatePlayer);
 router.delete("/:id", deletePlayer);
 //Get tests for a player by their id
 router.get("/:id/tests", getPlayerTests);
+//Get stats for a player by their id
+router.get("/:id/stats", getPlayerStats);
 
 export default router;

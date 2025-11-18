@@ -232,7 +232,12 @@ export default function TestPage() {
             <h2 className="card-title text-2xl mb-4">Player</h2>
             <div className="flex items-center gap-4">
               <div>
-                <p className="text-2xl font-bold">{testData.player.name}</p>
+                <Link 
+                  to={`/player/${testData.player.id}`}
+                  className="text-2xl font-bold hover:text-primary transition-colors"
+                >
+                  {testData.player.name}
+                </Link>
                 <div className="flex items-center gap-2 mt-2">
                   {testData.player.number && (
                     <span className="badge badge-primary">#{testData.player.number}</span>
