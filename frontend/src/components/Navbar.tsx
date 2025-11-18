@@ -64,6 +64,26 @@ function Navbar() {
     }
   }, [isSearchOpen, isMobileMenuOpen]);
 
+  // Close mobile search suggestuions when clicking outside in the menu. Werid bug
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      // Don't close if clicking inside the search dropdown or input
+      if (mobileSearchRef.current && !mobileSearchRef.current.contains(target)) {
+        setIsSearchOpen(false);
+        setSearchTerm('');
+      }
+    };
+
+    if (isSearchOpen && isMobileMenuOpen && mobileSearchRef.current) {
+      document.addEventListener('click', handleClickOutside);
+
+      return () => {
+        document.removeEventListener('click', handleClickOutside);
+      };
+    }
+  }, [isSearchOpen, isMobileMenuOpen]);
+
   // Close mobile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -72,6 +92,9 @@ function Navbar() {
         const target = event.target as HTMLElement;
         if (!target.closest('[data-hamburger-button]')) {
           setIsMobileMenuOpen(false);
+          // Also close search dropdown when menu closes
+          setIsSearchOpen(false);
+          setSearchTerm('');
         }
       }
     };
@@ -87,7 +110,7 @@ function Navbar() {
       document.body.style.overflow = '';
     };
   }, [isMobileMenuOpen]);
-
+  
   // Filter players by search term
   const filteredPlayers = players.filter((player) =>
     player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -102,6 +125,7 @@ function Navbar() {
     navigate(`/player/${playerId}`);
   };
 
+  // Open start test modal and close mobile menu
   const handleStartTestClick = () => {
     setIsModalOpen(true);
     setIsMobileMenuOpen(false);
