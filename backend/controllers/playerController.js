@@ -192,3 +192,66 @@ export const getPlayerStats = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal Server Error: " + error.message });
     }
 };
+
+//Get leaderboard (limit to top 5 players)
+export const getLeaderboard = async (req, res) => {
+    try {
+        const leaderboard = await sql`
+        WITH player_stats AS (
+            SELECT 
+                p.id,
+                p.name,
+                p.team,
+                p.number,
+                COUNT(DISTINCT t.id) FILTER (WHERE t.completed_at IS NOT NULL) as total_tests,
+                COALESCE(SUM(t.total_attempts) FILTER (WHERE t.completed_at IS NOT NULL), 0) as total_attempts,
+                COALESCE(SUM(t.total_makes) FILTER (WHERE t.completed_at IS NOT NULL), 0) as total_makes,
+                COALESCE(
+                    (SELECT SUM(COALESCE(tpl.shot_value, 0))
+                     FROM shot s
+                     INNER JOIN test t2 ON s.test_id = t2.id
+                     LEFT JOIN test_preset_locations tpl ON t2.test_preset_id = tpl.test_preset_id 
+                         AND s.court_location = tpl.location_key
+                     WHERE t2.player_id = p.id AND s.made = true),
+                    0
+                ) as total_points,
+                COALESCE(
+                    ROUND(
+                        AVG(CASE 
+                            WHEN t.total_attempts > 0 
+                            THEN (t.total_makes::numeric / t.total_attempts::numeric) * 100 
+                            ELSE 0 
+                        END) FILTER (WHERE t.completed_at IS NOT NULL),
+                        2
+                    ),
+                    0
+                ) as avg_accuracy
+            FROM player p
+            LEFT JOIN test t ON p.id = t.player_id
+            GROUP BY p.id, p.name, p.team, p.number
+            HAVING COUNT(DISTINCT t.id) FILTER (WHERE t.completed_at IS NOT NULL) > 0
+        )
+        SELECT 
+            id,
+            name,
+            team,
+            number,
+            total_tests,
+            total_points,
+            avg_accuracy
+        FROM player_stats
+        ORDER BY 
+            avg_accuracy DESC,
+            total_points DESC,
+            total_tests DESC,
+            name ASC
+        LIMIT 5
+        `;
+
+        res.status(200).json({ success: true, data: leaderboard });
+    } catch (error) {
+        //Error Handling
+        console.log("Error in getLeaderboard: " + error.message);
+        res.status(500).json({ success: false, message: "Internal Server Error: " + error.message });
+    }
+};

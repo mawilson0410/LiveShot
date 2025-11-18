@@ -73,5 +73,11 @@ export const playerService = {
     const response = await api.get<ApiResponse<any>>(`/api/players/${id}/stats`);
     return response.data.data;
   },
+
+  // Get leaderboard (top 5 players)
+  getLeaderboard: async () => {
+    const response = await api.get<ApiResponse<any[]>>('/api/players/leaderboard');
+    return response.data.data;
+  },
 };
 

@@ -6,13 +6,16 @@ import {
     updatePlayer,
     deletePlayer,
     getPlayerTests,
-    getPlayerStats
+    getPlayerStats,
+    getLeaderboard
 } from "../controllers/playerController.js";
 
 const router = express.Router();
 
 //Get all players
 router.get("/", getPlayers);
+//Get leaderboard (top 5 players)
+router.get("/leaderboard", getLeaderboard);
 //Get a single player by their id
 router.get("/:id", getPlayer);
 //Create a new player
