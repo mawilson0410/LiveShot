@@ -118,6 +118,7 @@ function Navbar() {
     (player.number && player.number.includes(searchTerm))
   );
 
+  // Navigate to player page and close mobile menu (if its open)
   const handlePlayerSelect = (playerId: number) => {
     setIsSearchOpen(false);
     setSearchTerm('');
