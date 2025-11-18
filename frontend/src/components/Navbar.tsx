@@ -254,7 +254,7 @@ function Navbar() {
         <div className="flex flex-col h-full">
           {/* Mobile Menu Header */}
           <div className="flex items-center justify-between p-4 border-b border-base-content/10">
-            <h2 className="text-xl font-bold">Menu</h2>
+            <h2 className="text-xl font-bold">Player Options</h2>
             <button
               onClick={() => setIsMobileMenuOpen(false)}
               className="btn btn-ghost btn-sm btn-circle"

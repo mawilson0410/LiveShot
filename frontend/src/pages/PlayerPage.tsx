@@ -154,9 +154,19 @@ export default function PlayerPage() {
             </div>
           </div>
 
-          {/* Recent Tests */}
+          {/* Recent Tests and button to view all tests (player test page) */}
           <div className="lg:col-span-2">
-            <h2 className="text-xl font-bold mb-4">Recent Tests</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold">Recent Tests</h2>
+              {recentTests.length > 0 && (
+                <Link
+                  to={`/player/${id}/tests`}
+                  className="btn btn-ghost btn-sm"
+                >
+                  View all tests
+                </Link>
+              )}
+            </div>
             {recentTests.length === 0 ? (
               <div className="card bg-base-100 shadow-md">
                 <div className="card-body">
