@@ -230,9 +230,9 @@ export default function ActiveTestPage() {
   }
 
   return (
-    <div className="min-h-screen bg-base-200 flex flex-col">
+    <div className="h-screen bg-base-200 flex flex-col overflow-hidden">
       {/* Top Section - Trackers */}
-      <div className="bg-base-100 border-b border-base-content/10 p-4">
+      <div className="bg-base-100 border-b border-base-content/10 p-3 flex-shrink-0">
         <div className="max-w-2xl mx-auto space-y-2">
           {/* Location Tracker */}
           {locationInfo && (
@@ -263,16 +263,16 @@ export default function ActiveTestPage() {
       </div>
 
       {/* Middle Section - Location Label */}
-      <div className="flex-1 flex flex-col items-center justify-start p-4 pt-2">
+      <div className="flex-1 flex flex-col items-center justify-start p-2 md:p-4 overflow-y-auto">
         {testStatus === 'countdown' ? (
           <div className="text-center">
-            <p className="text-2xl font-bold">Get ready!</p>
+            <p className="text-xl md:text-2xl font-bold">Get ready!</p>
           </div>
         ) : locationInfo ? (
           <>
-            <div className="text-center mb-2 mt-2">
-              <p className="text-sm text-base-content/70 mb-1">Currently shooting from: </p>
-              <p className="text-3xl md:text-4xl font-bold text-primary">
+            <div className="text-center mb-1 md:mb-2 mt-1">
+              <p className="text-xs md:text-sm text-base-content/70 mb-0.5">Currently shooting from: </p>
+              <p className="text-xl md:text-3xl lg:text-4xl font-bold text-primary">
                 {locationInfo.location.location_name}
               </p>
             </div>
@@ -280,7 +280,7 @@ export default function ActiveTestPage() {
             {/* Location Selector Buttons */}
             {testStatus === 'active' && testData && (
               <div className="w-full max-w-2xl mt-1">
-                <p className="text-sm text-base-content/70 mb-2 text-center">Select Location</p>
+                <p className="text-xs md:text-sm text-base-content/70 mb-1 md:mb-2 text-center">Select Location</p>
                 {testData.locations.length <= 3 ? (
                   // Simple centered row for 3 or fewer locations
                   <div className="flex justify-center gap-2 md:gap-3 flex-wrap">
@@ -295,7 +295,7 @@ export default function ActiveTestPage() {
                           <button
                             key={location.location_key}
                             onClick={() => handleLocationSelect(location.location_key)}
-                            className={`btn relative min-h-[80px] md:min-h-[90px] px-3 py-2 ${
+                            className={`btn relative min-h-[60px] md:min-h-[80px] lg:min-h-[90px] px-2 md:px-3 py-1 md:py-2 ${
                               isActive
                                 ? 'btn-primary'
                                 : isFull
@@ -305,13 +305,13 @@ export default function ActiveTestPage() {
                             disabled={testStatus !== 'active'}
                           >
                             <div className="flex flex-col items-center w-full">
-                              <div className="flex flex-col items-center gap-1 w-full">
-                                <span className="font-semibold text-sm md:text-base text-center break-words leading-tight">{location.location_name}</span>
+                              <div className="flex flex-col items-center gap-0.5 md:gap-1 w-full">
+                                <span className="font-semibold text-xs md:text-sm lg:text-base text-center break-words leading-tight">{location.location_name}</span>
                                 {isActive && (
-                                  <span className="badge badge-sm badge-success">Active</span>
+                                  <span className="badge badge-xs md:badge-sm badge-success">Active</span>
                                 )}
                               </div>
-                              <span className="text-xs mt-1">
+                              <span className="text-[10px] md:text-xs mt-0.5 md:mt-1">
                                 {shotsInLocation} / {location.planned_shots}
                               </span>
                             </div>
@@ -320,8 +320,8 @@ export default function ActiveTestPage() {
                       })}
                   </div>
                 ) : (
-                  // Grid layout for 4+ locations
-                  <div className="grid grid-cols-3 gap-2 md:gap-3">
+                  // Grid layout for 4+ locations to resemble a basketball court arc
+                  <div className="grid grid-cols-3 gap-1.5 md:gap-2 lg:gap-3">
                     {testData.locations
                       .sort((a, b) => a.shot_order - b.shot_order)
                       .map((location, index) => {
@@ -369,7 +369,7 @@ export default function ActiveTestPage() {
                           <button
                             key={location.location_key}
                             onClick={() => handleLocationSelect(location.location_key)}
-                            className={`btn relative min-h-[80px] md:min-h-[90px] px-3 py-2 ${
+                            className={`btn relative min-h-[60px] md:min-h-[80px] lg:min-h-[90px] px-2 md:px-3 py-1 md:py-2 ${
                               isActive
                                 ? 'btn-primary'
                                 : isFull
@@ -383,13 +383,13 @@ export default function ActiveTestPage() {
                             }}
                           >
                             <div className="flex flex-col items-center w-full">
-                              <div className="flex flex-col items-center gap-1 w-full">
-                                <span className="font-semibold text-sm md:text-base text-center break-words leading-tight">{location.location_name}</span>
+                              <div className="flex flex-col items-center gap-0.5 md:gap-1 w-full">
+                                <span className="font-semibold text-xs md:text-sm lg:text-base text-center break-words leading-tight">{location.location_name}</span>
                                 {isActive && (
-                                  <span className="badge badge-sm badge-success">Active</span>
+                                  <span className="badge badge-xs md:badge-sm badge-success">Active</span>
                                 )}
                               </div>
-                              <span className="text-xs mt-1">
+                              <span className="text-[10px] md:text-xs mt-0.5 md:mt-1">
                                 {shotsInLocation} / {location.planned_shots}
                               </span>
                             </div>
@@ -403,20 +403,20 @@ export default function ActiveTestPage() {
           </>
         ) : (
           <div className="text-center">
-            <p className="text-2xl font-bold">Test Complete!</p>
+            <p className="text-xl md:text-2xl font-bold">Test Complete!</p>
           </div>
         )}
       </div>
 
       {/* Bottom Section - Buttons */}
-      <div className="bg-base-100 border-t border-base-content/10 p-4">
+      <div className="bg-base-100 border-t border-base-content/10 p-3 md:p-4 flex-shrink-0">
         <div className="max-w-2xl mx-auto space-y-2">
           {testStatus === 'active' && locationInfo ? (
             <>
             {/* Handle activiating/deactiviating location buttons */}
               <button
                 onClick={() => handleShot(true)}
-                className="btn btn-success w-full h-20 md:h-24 text-2xl md:text-3xl font-bold"
+                className="btn btn-success w-full h-16 md:h-20 lg:h-24 text-xl md:text-2xl lg:text-3xl font-bold"
                 disabled={
                   testStatus !== 'active' ||
                   !activeLocationKey ||
@@ -427,7 +427,7 @@ export default function ActiveTestPage() {
               </button>
               <button
                 onClick={() => handleShot(false)}
-                className="btn btn-error w-full h-20 md:h-24 text-2xl md:text-3xl font-bold"
+                className="btn btn-error w-full h-16 md:h-20 lg:h-24 text-xl md:text-2xl lg:text-3xl font-bold"
                 disabled={
                   testStatus !== 'active' ||
                   !activeLocationKey ||
