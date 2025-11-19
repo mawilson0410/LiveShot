@@ -263,14 +263,14 @@ export default function ActiveTestPage() {
       </div>
 
       {/* Middle Section - Location Label */}
-      <div className="flex-1 flex flex-col items-center justify-start p-2 md:p-4 overflow-y-auto">
+      <div className="flex-1 flex flex-col items-center justify-center min-h-0 p-2 md:p-4">
         {testStatus === 'countdown' ? (
           <div className="text-center">
             <p className="text-xl md:text-2xl font-bold">Get ready!</p>
           </div>
         ) : locationInfo ? (
           <>
-            <div className="text-center mb-1 md:mb-2 mt-1">
+            <div className="text-center mb-1 md:mb-2">
               <p className="text-xs md:text-sm text-base-content/70 mb-0.5">Currently shooting from: </p>
               <p className="text-xl md:text-3xl lg:text-4xl font-bold text-primary">
                 {locationInfo.location.location_name}
@@ -279,11 +279,11 @@ export default function ActiveTestPage() {
 
             {/* Location Selector Buttons */}
             {testStatus === 'active' && testData && (
-              <div className="w-full max-w-2xl mt-1">
-                <p className="text-xs md:text-sm text-base-content/70 mb-1 md:mb-2 text-center">Select Location</p>
+              <div className="w-full max-w-2xl">
+                <p className="text-xs md:text-sm text-base-content/70 mb-1 text-center">Select Location</p>
                 {testData.locations.length <= 3 ? (
                   // Simple centered row for 3 or fewer locations
-                  <div className="flex justify-center gap-2 md:gap-3 flex-wrap">
+                  <div className="flex justify-center gap-1.5 md:gap-2 lg:gap-3 flex-wrap">
                     {testData.locations
                       .sort((a, b) => a.shot_order - b.shot_order)
                       .map((location) => {
@@ -409,8 +409,8 @@ export default function ActiveTestPage() {
       </div>
 
       {/* Bottom Section - Buttons */}
-      <div className="bg-base-100 border-t border-base-content/10 p-3 md:p-4 flex-shrink-0">
-        <div className="max-w-2xl mx-auto space-y-2">
+      <div className="bg-base-100 border-t border-base-content/10 p-2 md:p-3 flex-shrink-0">
+        <div className="max-w-2xl mx-auto space-y-1.5 md:space-y-2">
           {testStatus === 'active' && locationInfo ? (
             <>
             {/* Handle activiating/deactiviating location buttons */}
