@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon, TargetIcon, TrendingUpIcon, AwardIcon, BarChartIcon, ClockIcon } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { playerService, type Player } from '../services/playerService';
 
 interface PlayerTest {
   id: number;
   total_makes: number;
   total_attempts: number;
+  total_points: number;
   started_at: string;
   completed_at: string;
   test_preset: {
@@ -30,7 +32,9 @@ interface PlayerStats {
 
 export default function PlayerPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [player, setPlayer] = useState<Player | null>(null);
+  const [allTests, setAllTests] = useState<PlayerTest[]>([]);
   const [recentTests, setRecentTests] = useState<PlayerTest[]>([]);
   const [stats, setStats] = useState<PlayerStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -50,6 +54,7 @@ export default function PlayerPage() {
           playerService.getPlayerStats(Number(id)),
         ]);
         setPlayer(playerData);
+        setAllTests(testsData || []);
         setRecentTests(testsData?.slice(0, 3) || []);
         setStats(statsData);
       } catch (error) {
@@ -84,6 +89,31 @@ export default function PlayerPage() {
   const calculateOverallAccuracy = () => {
     if (!stats || stats.total_attempts === 0) return 0;
     return Math.round((stats.total_makes / stats.total_attempts) * 100);
+  };
+
+  // Prepare chart data, limit to last 20 tests if there are more than 20
+  const chartTests = allTests.slice(0, 20).sort((a, b) => 
+    new Date(a.completed_at).getTime() - new Date(b.completed_at).getTime()
+  );
+
+  const accuracyChartData = chartTests.map((test) => ({
+    date: new Date(test.completed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    accuracy: Math.round((test.total_makes / test.total_attempts) * 100),
+    testId: test.id,
+    testName: test.test_preset.name,
+  }));
+
+  const pointsChartData = chartTests.map((test) => ({
+    date: new Date(test.completed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    points: test.total_points || 0,
+    testId: test.id,
+    testName: test.test_preset.name,
+  }));
+
+  const handleChartClick = (data: any) => {
+    if (data?.activePayload?.[0]?.payload?.testId) {
+      navigate(`/test/${data.activePayload[0].payload.testId}`);
+    }
   };
 
   if (loading) {
@@ -219,6 +249,128 @@ export default function PlayerPage() {
             )}
           </div>
         </div>
+
+        {/* Charts Section */}
+        {allTests.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-6">Performance Trends</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Accuracy Over Time Chart */}
+              <div className="card bg-base-100 shadow-md">
+                <div className="card-body">
+                  <h3 className="card-title text-lg mb-4">Accuracy Over Time</h3>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart
+                      data={accuracyChartData}
+                      onClick={handleChartClick}
+                      style={{ cursor: 'pointer' }}
+                      margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--bc) / 0.1)" />
+                      <XAxis 
+                        dataKey="date" 
+                        stroke="hsl(var(--bc) / 0.8)"
+                        tick={{ fill: 'hsl(var(--bc) / 0.8)', fontSize: 14, fontWeight: 500 }}
+                        style={{ fontSize: '14px', fontWeight: '500' }}
+                      />
+                      <YAxis 
+                        stroke="hsl(var(--bc) / 0.8)"
+                        tick={{ fill: 'hsl(var(--bc) / 0.8)', fontSize: 14, fontWeight: 500 }}
+                        style={{ fontSize: '14px', fontWeight: '500' }}
+                        label={{ 
+                          value: 'Accuracy %', 
+                          angle: -90, 
+                          position: 'insideLeft',
+                          style: { textAnchor: 'middle', fill: 'hsl(var(--bc) / 0.9)', fontSize: '14px', fontWeight: '600' }
+                        }}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'hsl(var(--b1))',
+                          border: '1px solid hsl(var(--bc) / 0.2)',
+                          borderRadius: '8px',
+                        }}
+                        formatter={(value: any) => [`${value}%`, 'Accuracy']}
+                        labelFormatter={(label: string, payload: any[]) => {
+                          if (payload && payload[0]) {
+                            return payload[0].payload.testName;
+                          }
+                          return label;
+                        }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="accuracy"
+                        stroke="#8884d8"
+                        strokeWidth={3}
+                        dot={{ r: 5, fill: '#8884d8', strokeWidth: 2, stroke: '#fff' }}
+                        activeDot={{ r: 7, strokeWidth: 2 }}
+                        connectNulls={false}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Points Over Time Chart */}
+              <div className="card bg-base-100 shadow-md">
+                <div className="card-body">
+                  <h3 className="card-title text-lg mb-4">Points Scored Over Time</h3>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart
+                      data={pointsChartData}
+                      onClick={handleChartClick}
+                      style={{ cursor: 'pointer' }}
+                      margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--bc) / 0.1)" />
+                      <XAxis 
+                        dataKey="date" 
+                        stroke="hsl(var(--bc) / 0.8)"
+                        tick={{ fill: 'hsl(var(--bc) / 0.8)', fontSize: 14, fontWeight: 500 }}
+                        style={{ fontSize: '14px', fontWeight: '500' }}
+                      />
+                      <YAxis 
+                        stroke="hsl(var(--bc) / 0.8)"
+                        tick={{ fill: 'hsl(var(--bc) / 0.8)', fontSize: 14, fontWeight: 500 }}
+                        style={{ fontSize: '14px', fontWeight: '500' }}
+                        label={{ 
+                          value: 'Points', 
+                          angle: -90, 
+                          position: 'insideLeft',
+                          style: { textAnchor: 'middle', fill: 'hsl(var(--bc) / 0.9)', fontSize: '14px', fontWeight: '600' }
+                        }}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'hsl(var(--b1))',
+                          border: '1px solid hsl(var(--bc) / 0.2)',
+                          borderRadius: '8px',
+                        }}
+                        formatter={(value: any) => [`${value} points`, 'Points']}
+                        labelFormatter={(label: string, payload: any[]) => {
+                          if (payload && payload[0]) {
+                            return payload[0].payload.testName;
+                          }
+                          return label;
+                        }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="points"
+                        stroke="#82ca9d"
+                        strokeWidth={3}
+                        dot={{ r: 5, fill: '#82ca9d', strokeWidth: 2, stroke: '#fff' }}
+                        activeDot={{ r: 7, strokeWidth: 2 }}
+                        connectNulls={false}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Stats Section */}
         {stats && (

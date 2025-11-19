@@ -125,6 +125,14 @@ export const getPlayerTests = async (req, res) => {
             t.total_attempts,
             t.started_at,
             t.completed_at,
+            COALESCE(
+                (SELECT SUM(COALESCE(tpl.shot_value, 0))
+                 FROM shot s
+                 LEFT JOIN test_preset_locations tpl ON t.test_preset_id = tpl.test_preset_id 
+                     AND s.court_location = tpl.location_key
+                 WHERE s.test_id = t.id AND s.made = true),
+                0
+            ) as total_points,
             json_build_object(
                 'id', tp.id,
                 'name', tp.name,
