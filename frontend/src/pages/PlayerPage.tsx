@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon, TargetIcon, TrendingUpIcon, AwardIcon, BarChartIcon, ClockIcon } from 'lucide-react';
+import { ArrowLeftIcon, TargetIcon, TrendingUpIcon, AwardIcon, BarChartIcon, ClockIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { playerService, type Player } from '../services/playerService';
 
@@ -38,6 +38,8 @@ export default function PlayerPage() {
   const [recentTests, setRecentTests] = useState<PlayerTest[]>([]);
   const [stats, setStats] = useState<PlayerStats | null>(null);
   const [loading, setLoading] = useState(true);
+  // State for the points over time chart, so user can switch between types of tests
+  const [selectedTestPresetKey, setSelectedTestPresetKey] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -57,6 +59,26 @@ export default function PlayerPage() {
         setAllTests(testsData || []);
         setRecentTests(testsData?.slice(0, 3) || []);
         setStats(statsData);
+        
+        // Set default test preset to the one with the most tests FOR ONLY THE POINT OVER TIME CHART
+        if (testsData && testsData.length > 0) {
+          const testPresetCounts = new Map<string, number>();
+          testsData.forEach((test: PlayerTest) => {
+            const key = test.test_preset.key;
+            testPresetCounts.set(key, (testPresetCounts.get(key) || 0) + 1);
+          });
+          
+          let maxCount = 0;
+          let mostCommonKey = testsData[0].test_preset.key;
+          testPresetCounts.forEach((count, key) => {
+            if (count > maxCount) {
+              maxCount = count;
+              mostCommonKey = key;
+            }
+          });
+          
+          setSelectedTestPresetKey(mostCommonKey);
+        }
       } catch (error) {
         console.error('Error loading player data:', error);
       } finally {
@@ -91,7 +113,39 @@ export default function PlayerPage() {
     return Math.round((stats.total_makes / stats.total_attempts) * 100);
   };
 
-  // Prepare chart data, limit to last 20 tests if there are more than 20
+  // Get unique test presets for navigation
+  const testPresets = Array.from(
+    new Map(allTests.map(test => [test.test_preset.key, test.test_preset])).values()
+  ).sort((a, b) => a.name.localeCompare(b.name));
+
+  // Get current test preset index
+  const currentPresetIndex = selectedTestPresetKey 
+    ? testPresets.findIndex(p => p.key === selectedTestPresetKey)
+    : -1;
+
+  // Navigation functions
+  const navigateToPreviousPreset = () => {
+    if (currentPresetIndex > 0) {
+      setSelectedTestPresetKey(testPresets[currentPresetIndex - 1].key);
+    } else if (testPresets.length > 0) {
+      setSelectedTestPresetKey(testPresets[testPresets.length - 1].key);
+    }
+  };
+
+  const navigateToNextPreset = () => {
+    if (currentPresetIndex < testPresets.length - 1) {
+      setSelectedTestPresetKey(testPresets[currentPresetIndex + 1].key);
+    } else if (testPresets.length > 0) {
+      setSelectedTestPresetKey(testPresets[0].key);
+    }
+  };
+
+  // Filter tests by selected preset for points chart
+  const filteredTestsForPoints = selectedTestPresetKey
+    ? allTests.filter(test => test.test_preset.key === selectedTestPresetKey)
+    : [];
+
+  // Chart data creation
   const chartTests = allTests.slice(0, 20).sort((a, b) => 
     new Date(a.completed_at).getTime() - new Date(b.completed_at).getTime()
   );
@@ -103,12 +157,18 @@ export default function PlayerPage() {
     testName: test.test_preset.name,
   }));
 
-  const pointsChartData = chartTests.map((test) => ({
-    date: new Date(test.completed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    points: test.total_points || 0,
-    testId: test.id,
-    testName: test.test_preset.name,
-  }));
+  // Points over time chart data filtered by selected test preset, sorted by date
+  const pointsChartData = filteredTestsForPoints
+    .sort((a, b) => new Date(a.completed_at).getTime() - new Date(b.completed_at).getTime())
+    .map((test) => ({
+      date: new Date(test.completed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      points: test.total_points || 0,
+      testId: test.id,
+      testName: test.test_preset.name,
+    }));
+
+  // Get current test preset name
+  const currentPresetName = testPresets.find(p => p.key === selectedTestPresetKey)?.name || 'No tests available';
 
   const handleChartClick = (data: any) => {
     if (data?.activePayload?.[0]?.payload?.testId) {
@@ -290,7 +350,7 @@ export default function PlayerPage() {
                           border: '1px solid hsl(var(--bc) / 0.2)',
                           borderRadius: '8px',
                         }}
-                        formatter={(value: any) => [`${value}%`, 'Accuracy']}
+                        formatter={(value: any) => [`${value}% Accuracy`]}
                         labelFormatter={(label: string, payload: any[]) => {
                           if (payload && payload[0]) {
                             return payload[0].payload.testName;
@@ -315,8 +375,41 @@ export default function PlayerPage() {
               {/* Points Over Time Chart */}
               <div className="card bg-base-100 shadow-md">
                 <div className="card-body">
-                  <h3 className="card-title text-lg mb-4">Points Scored Over Time</h3>
-                  <ResponsiveContainer width="100%" height={300}>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="card-title text-lg">Points Over Time</h3>
+                    {testPresets.length > 1 && (
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={navigateToPreviousPreset}
+                          className="btn btn-ghost btn-sm btn-circle"
+                          aria-label="Previous test type"
+                        >
+                          <ChevronLeftIcon className="size-5" />
+                        </button>
+                        <span className="text-sm font-medium text-base-content/80 min-w-[120px] text-center">
+                          {currentPresetName}
+                        </span>
+                        <button
+                          onClick={navigateToNextPreset}
+                          className="btn btn-ghost btn-sm btn-circle"
+                          aria-label="Next test type"
+                        >
+                          <ChevronRightIcon className="size-5" />
+                        </button>
+                      </div>
+                    )}
+                    {testPresets.length === 1 && (
+                      <span className="text-sm font-medium text-base-content/60">
+                        {currentPresetName}
+                      </span>
+                    )}
+                  </div>
+                  {pointsChartData.length === 0 ? (
+                    <div className="flex items-center justify-center h-[300px] text-base-content/60">
+                      <p>No tests available for this test type</p>
+                    </div>
+                  ) : (
+                    <ResponsiveContainer width="100%" height={300}>
                     <LineChart
                       data={pointsChartData}
                       onClick={handleChartClick}
@@ -347,7 +440,7 @@ export default function PlayerPage() {
                           border: '1px solid hsl(var(--bc) / 0.2)',
                           borderRadius: '8px',
                         }}
-                        formatter={(value: any) => [`${value} points`, 'Points']}
+                        formatter={(value: any) => [`${value} points`]}
                         labelFormatter={(label: string, payload: any[]) => {
                           if (payload && payload[0]) {
                             return payload[0].payload.testName;
@@ -366,6 +459,7 @@ export default function PlayerPage() {
                       />
                     </LineChart>
                   </ResponsiveContainer>
+                  )}
                 </div>
               </div>
             </div>

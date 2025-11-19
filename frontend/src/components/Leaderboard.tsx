@@ -74,9 +74,10 @@ export default function Leaderboard() {
           <div className="grid grid-cols-12 gap-4 p-4 border-b border-base-content/10 font-semibold text-sm text-base-content/70">
             <div className="col-span-1 text-center">Rank</div>
             <div className="col-span-4 text-center">Player</div>
-            <div className="col-span-2 text-center">Avg. Accuracy</div>
+            <div className="col-span-2 text-center">Avg. Acc.</div>
             <div className="col-span-2 text-center">Lifetime Pts.</div>
-            <div className="col-span-2 text-center">Tests</div>
+            {/* Test label and data align to the right to give a little more room for the points */}
+            <div className="col-span-2 text-right">Tests</div>
             <div className="col-span-1"></div>
           </div>
 
@@ -112,7 +113,7 @@ export default function Leaderboard() {
                 <div className="col-span-2 text-center font-semibold">
                   {player.total_points || 0}
                 </div>
-                <div className="col-span-2 text-center font-semibold">
+                <div className="col-span-2 text-right font-semibold">
                   {player.total_tests}
                 </div>
                 <div className="col-span-1"></div>
