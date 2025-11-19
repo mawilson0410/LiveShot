@@ -1,6 +1,8 @@
-# LiveShot
+# 🏀 LiveShot
 
 A basketball shooting test tracking application that allows coaches and players to record, track, and analyze shooting performance across different test types and court locations.
+
+This application was made by Michael Wilson, for the Cleveland Cavaliers.
 
 ## Features
 
@@ -27,7 +29,7 @@ A basketball shooting test tracking application that allows coaches and players 
 
 ### Backend
 - **Node.js** with **Express 5**
-- **Neon Database** (PostgreSQL) - Serverless database
+- **PostgreSQL** (Neon Database) - Serverless database
 - **Helmet** - Security middleware
 - **CORS** - Cross-origin resource sharing
 - **Morgan** - HTTP request logger for debugging
@@ -105,6 +107,4 @@ LiveShot/
 - `POST /api/tests` - Create a new test
 - `GET /api/tests/:id` - Get test details
 - `GET /api/test-presets` - Get all test presets
-
-This application was made by Michael Wilson, for the Cleveland Cavaliers.
 

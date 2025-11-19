@@ -238,7 +238,7 @@ export default function ActiveTestPage() {
           {locationInfo && (
             <div className="text-center">
               <p className="text-sm text-base-content/70 mb-1">Current Location</p>
-              <p className="text-2xl font-bold">
+              <p className="text-xl font-bold">
                 Shot {locationInfo.shotInLocation} / {locationInfo.location.planned_shots} for {locationInfo.location.location_name}
               </p>
             </div>
@@ -247,7 +247,7 @@ export default function ActiveTestPage() {
           {/* Overall Tracker */}
           <div className="text-center">
             <p className="text-sm text-base-content/70 mb-1">Overall Progress</p>
-            <p className="text-2xl font-bold">
+            <p className="text-xl font-bold">
               Shot {currentShot} / {totalShots}
             </p>
           </div>
@@ -263,14 +263,14 @@ export default function ActiveTestPage() {
       </div>
 
       {/* Middle Section - Location Label */}
-      <div className="flex-1 flex flex-col items-center justify-center p-4">
+      <div className="flex-1 flex flex-col items-center justify-start p-4 pt-2">
         {testStatus === 'countdown' ? (
           <div className="text-center">
             <p className="text-2xl font-bold">Get ready!</p>
           </div>
         ) : locationInfo ? (
           <>
-            <div className="text-center mb-2">
+            <div className="text-center mb-2 mt-2">
               <p className="text-sm text-base-content/70 mb-1">Currently shooting from: </p>
               <p className="text-3xl md:text-4xl font-bold text-primary">
                 {locationInfo.location.location_name}
@@ -279,7 +279,7 @@ export default function ActiveTestPage() {
 
             {/* Location Selector Buttons */}
             {testStatus === 'active' && testData && (
-              <div className="w-full max-w-2xl mt-2">
+              <div className="w-full max-w-2xl mt-1">
                 <p className="text-sm text-base-content/70 mb-2 text-center">Select Location</p>
                 {testData.locations.length <= 3 ? (
                   // Simple centered row for 3 or fewer locations
@@ -410,7 +410,7 @@ export default function ActiveTestPage() {
 
       {/* Bottom Section - Buttons */}
       <div className="bg-base-100 border-t border-base-content/10 p-4">
-        <div className="max-w-2xl mx-auto space-y-3">
+        <div className="max-w-2xl mx-auto space-y-2">
           {testStatus === 'active' && locationInfo ? (
             <>
             {/* Handle activiating/deactiviating location buttons */}
