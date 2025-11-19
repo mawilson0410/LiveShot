@@ -19,10 +19,19 @@ const app = express();
 //Middleware
 // Express.json parses the request body as JSON
 app.use(express.json());
-// Prevent Cross-Origin Resource Sharing (CORS) errors
-app.use(cors());
+
+// so I can use thefrontend URL in production, or all origins in development
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' && process.env.FRONTEND_URL
+    ? process.env.FRONTEND_URL 
+    : true, // Allow all origins in development
+  credentials: true,
+};
+app.use(cors(corsOptions));
+
 // Helmet helps secure the app by setting various HTTP headers
 app.use(helmet());
+
 // Morgan will log my requests to the console
 app.use(morgan("dev"));
 
