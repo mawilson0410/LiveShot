@@ -209,7 +209,7 @@ export default function PlayerPage() {
               <div className="grid gap-4">
                 {recentTests.map((test) => {
                   const percentage = calculatePercentage(test.total_makes, test.total_attempts);
-                  return (
+  return (
                     <Link
                       key={test.id}
                       to={`/test/${test.id}`}
