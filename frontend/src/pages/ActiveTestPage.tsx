@@ -46,6 +46,7 @@ export default function ActiveTestPage() {
   // New state for location selection
   const [activeLocationKey, setActiveLocationKey] = useState<string | null>(null);
   const [locationShotsCount, setLocationShotsCount] = useState<Record<string, number>>({});
+  const [viewportHeight, setViewportHeight] = useState<string>('100vh');
 
   // Get current location info based on active location
   const getCurrentLocationInfo = () => {
@@ -203,6 +204,29 @@ export default function ActiveTestPage() {
     }
   };
 
+  // Set viewport height to account for mobile browser UI bars
+  useEffect(() => {
+    const setHeight = () => {
+      // Use window.innerHeight which accounts for browser navbars 
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+      setViewportHeight(`${window.innerHeight}px`);
+    };
+
+    setHeight();
+    window.addEventListener('resize', setHeight);
+    window.addEventListener('orientationchange', setHeight);
+    
+    // Also set on focus in case browser UI changes
+    window.addEventListener('focus', setHeight);
+
+    return () => {
+      window.removeEventListener('resize', setHeight);
+      window.removeEventListener('orientationchange', setHeight);
+      window.removeEventListener('focus', setHeight);
+    };
+  }, []);
+
   // Prevent navigation away during active test
   // TODO THIS ISNT CURRENTLY WORKING
   useEffect(() => {
@@ -230,9 +254,12 @@ export default function ActiveTestPage() {
   }
 
   return (
-    <div className="h-screen bg-base-200 flex flex-col overflow-hidden">
+    <div 
+      className="bg-base-200 flex flex-col overflow-hidden"
+      style={{ height: viewportHeight }}
+    >
       {/* Top Section - Trackers */}
-      <div className="bg-base-100 border-b border-base-content/10 p-4 flex-shrink-0">
+      <div className="bg-base-100 border-b border-base-content/10 p-3 flex-shrink-0">
         <div className="max-w-2xl mx-auto space-y-2">
           {/* Location Tracker */}
           {locationInfo && (
@@ -409,14 +436,20 @@ export default function ActiveTestPage() {
       </div>
 
       {/* Bottom Section - Buttons */}
-      <div className="bg-base-100 border-t border-base-content/10 p-4 flex-shrink-0">
-        <div className="max-w-2xl mx-auto space-y-2">
+      <div 
+        className="bg-base-100 border-t border-base-content/10 flex-shrink-0"
+        style={{ 
+          padding: '0.75rem 1rem',
+          paddingBottom: `calc(0.75rem + env(safe-area-inset-bottom, 0px))` 
+        }}
+      >
+        <div className="max-w-2xl mx-auto space-y-1.5">
           {testStatus === 'active' && locationInfo ? (
             <>
             {/* Handle activiating/deactiviating location buttons */}
               <button
                 onClick={() => handleShot(true)}
-                className="btn btn-success w-full h-20 md:h-24 text-2xl md:text-3xl font-bold"
+                className="btn btn-success w-full h-16 md:h-20 text-xl md:text-2xl font-bold"
                 disabled={
                   testStatus !== 'active' ||
                   !activeLocationKey ||
@@ -427,7 +460,7 @@ export default function ActiveTestPage() {
               </button>
               <button
                 onClick={() => handleShot(false)}
-                className="btn btn-error w-full h-20 md:h-24 text-2xl md:text-3xl font-bold"
+                className="btn btn-error w-full h-16 md:h-20 text-xl md:text-2xl font-bold"
                 disabled={
                   testStatus !== 'active' ||
                   !activeLocationKey ||
