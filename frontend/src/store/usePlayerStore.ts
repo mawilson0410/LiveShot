@@ -18,7 +18,7 @@ interface PlayerState {
   clearError: () => void;
 }
 
-export const usePlayerStore = create<PlayerState>((set, get) => ({
+export const usePlayerStore = create<PlayerState>((set) => ({
   // Initial state
   players: [],
   selectedPlayer: null,
