@@ -204,55 +204,40 @@ export default function ActiveTestPage() {
     }
   };
 
-  // Set viewport height to account for mobile browser UI bars
+  // Set viewport height to account for mobile browser UI bars and prevent scrolling
   useEffect(() => {
+    // Prevent body scrolling on this page
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    
+    // Scroll to top immediately
+    window.scrollTo(0, 0);
+    
     const setHeight = () => {
-      // Use requestAnimationFrame to ensure DOM is fully rendered
-      requestAnimationFrame(() => {
-        // Use window.innerHeight which accounts for browser navbars 
-        const vh = window.innerHeight * 0.01;
-        document.documentElement.style.setProperty('--vh', `${vh}px`);
-        setViewportHeight(`${window.innerHeight}px`);
-      });
+      // Use window.innerHeight which accounts for browser navbars 
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+      setViewportHeight(`${window.innerHeight}px`);
+      // Ensure we stay at top
+      window.scrollTo(0, 0);
     };
 
-    // Initial calculation with a small delay to ensure navbar is hidden
-    const timeoutId = setTimeout(() => {
-      setHeight();
-    }, 100);
-
-    // Also set immediately in case it's fast enough
     setHeight();
-
     window.addEventListener('resize', setHeight);
     window.addEventListener('orientationchange', setHeight);
-    window.addEventListener('focus', setHeight);
-    window.addEventListener('visibilitychange', setHeight);
     
-    // Recalculate after a short delay to catch any late layout changes
-    const delayedRecalc = setTimeout(setHeight, 300);
+    // Also set on focus in case browser UI changes
+    window.addEventListener('focus', setHeight);
 
     return () => {
-      clearTimeout(timeoutId);
-      clearTimeout(delayedRecalc);
+      // Restore scrolling when leaving page
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
       window.removeEventListener('resize', setHeight);
       window.removeEventListener('orientationchange', setHeight);
       window.removeEventListener('focus', setHeight);
-      window.removeEventListener('visibilitychange', setHeight);
     };
   }, []);
-
-  // Recalculate height when test data loads (component is fully ready)
-  useEffect(() => {
-    if (testData) {
-      // Small delay to ensure layout is complete and navbar is hidden
-      const timeoutId = setTimeout(() => {
-        const height = window.innerHeight;
-        setViewportHeight(`${height}px`);
-      }, 150);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [testData]);
 
   // Prevent navigation away during active test
   // TODO THIS ISNT CURRENTLY WORKING
@@ -282,8 +267,8 @@ export default function ActiveTestPage() {
 
   return (
     <div 
-      className="bg-base-200 flex flex-col overflow-hidden m-0"
-      style={{ height: viewportHeight, margin: 0, padding: 0 }}
+      className="bg-base-200 flex flex-col overflow-hidden"
+      style={{ height: viewportHeight, position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
     >
       {/* Top Section - Trackers */}
       <div className="bg-base-100 border-b border-base-content/10 p-3 flex-shrink-0">
@@ -467,7 +452,7 @@ export default function ActiveTestPage() {
         className="bg-base-100 border-t border-base-content/10 flex-shrink-0"
         style={{ 
           padding: '0.75rem 1rem',
-          paddingBottom: `max(0.75rem, calc(0.75rem + env(safe-area-inset-bottom, 0px)))` 
+          paddingBottom: `calc(0.75rem + env(safe-area-inset-bottom, 0px))` 
         }}
       >
         <div className="max-w-2xl mx-auto space-y-1.5">
