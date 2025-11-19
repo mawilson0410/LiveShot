@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon, TargetIcon, TrendingUpIcon, AwardIcon, BarChartIcon, ClockIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { playerService, type Player } from '../services/playerService';
+import StartTestModal from '../components/StartTestModal';
 
 interface PlayerTest {
   id: number;
@@ -40,6 +41,7 @@ export default function PlayerPage() {
   const [loading, setLoading] = useState(true);
   // State for the points over time chart, so user can switch between types of tests
   const [selectedTestPresetKey, setSelectedTestPresetKey] = useState<string | null>(null);
+  const [isStartTestModalOpen, setIsStartTestModalOpen] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -176,6 +178,10 @@ export default function PlayerPage() {
     }
   };
 
+  const handleStartTest = (testId: number) => {
+    navigate(`/active-test/${testId}`);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-base-200">
@@ -239,6 +245,12 @@ export default function PlayerPage() {
                   <p className="text-sm text-base-content/70 mt-1">
                     {stats.total_makes} / {stats.total_attempts} shots
                   </p>
+                  <button
+                    onClick={() => setIsStartTestModalOpen(true)}
+                    className="btn btn-primary btn-sm w-full mt-4"
+                  >
+                    Start a new test for {player.name}
+                  </button>
                 </div>
               )}
             </div>
@@ -550,6 +562,12 @@ export default function PlayerPage() {
           </div>
         )}
       </div>
+      <StartTestModal
+        isOpen={isStartTestModalOpen}
+        onClose={() => setIsStartTestModalOpen(false)}
+        onStartTest={handleStartTest}
+        preselectedPlayerId={player?.id || null}
+      />
     </div>
   );
 }

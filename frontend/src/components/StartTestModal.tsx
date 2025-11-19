@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { XIcon } from 'lucide-react';
 import { playerService, type Player, type CreatePlayerInput } from '../services/playerService';
 import { testService, type TestPreset } from '../services/testService';
@@ -7,11 +7,12 @@ interface StartTestModalProps {
   isOpen: boolean;
   onClose: () => void;
   onStartTest: (testId: number) => void;
+  preselectedPlayerId?: number | null;
 }
 
-export default function StartTestModal({ isOpen, onClose, onStartTest }: StartTestModalProps) {
+export default function StartTestModal({ isOpen, onClose, onStartTest, preselectedPlayerId = null }: StartTestModalProps) {
   const [step, setStep] = useState<'player' | 'preset'>('player');
-  const [playerOption, setPlayerOption] = useState<'new' | 'existing'>('new');
+  const [playerOption, setPlayerOption] = useState<'new' | 'existing'>(preselectedPlayerId ? 'existing' : 'new');
   
   // New player form
   const [newPlayer, setNewPlayer] = useState<CreatePlayerInput>({
@@ -31,6 +32,28 @@ export default function StartTestModal({ isOpen, onClose, onStartTest }: StartTe
 
   // Loading states
   const [loading, setLoading] = useState(false);
+
+  // Handle preselected player when modal opens for button on player page
+  useEffect(() => {
+    if (isOpen) {
+      setStep('player');
+      if (preselectedPlayerId) {
+        setPlayerOption('existing');
+        setSelectedPlayerId(preselectedPlayerId);
+        // Load players if not already loaded
+        if (players.length === 0) {
+          playerService.getAllPlayers().then((data) => {
+            setPlayers(data);
+          }).catch((error) => {
+            console.error('Error loading players:', error);
+          });
+        }
+      } else {
+        setPlayerOption('new');
+        setSelectedPlayerId(null);
+      }
+    }
+  }, [isOpen, preselectedPlayerId]);
 
   // Load players when switching to existing player option
   const handlePlayerOptionChange = async (option: 'new' | 'existing') => {
@@ -101,9 +124,9 @@ export default function StartTestModal({ isOpen, onClose, onStartTest }: StartTe
   // Reset and close modal
   const handleClose = () => {
     setStep('player');
-    setPlayerOption('new');
+    setPlayerOption(preselectedPlayerId ? 'existing' : 'new');
     setNewPlayer({ name: '', team: '', number: '' });
-    setSelectedPlayerId(null);
+    setSelectedPlayerId(preselectedPlayerId);
     setSearchTerm('');
     setSelectedPresetId(null);
     onClose();

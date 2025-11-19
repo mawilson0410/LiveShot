@@ -84,20 +84,18 @@ export default function Leaderboard() {
           {/* Player Rows */}
           <div className="divide-y divide-base-content/10">
             {players.map((player, index) => (
-              <div
+              <Link
                 key={player.id}
+                to={`/player/${player.id}`}
                 className="grid grid-cols-12 gap-4 p-4 hover:bg-base-200 transition-colors"
               >
                 <div className="col-span-1 flex items-center justify-center">
                   <span className="text-lg font-bold text-warning">#{index + 1}</span>
                 </div>
                 <div className="col-span-4 text-center">
-                  <Link
-                    to={`/player/${player.id}`}
-                    className="font-semibold hover:text-primary transition-colors"
-                  >
+                  <span className="font-semibold hover:text-primary transition-colors">
                     {player.name}
-                  </Link>
+                  </span>
                   <div className="flex items-center justify-center gap-2 mt-1">
                     {player.number && (
                       <span className="badge badge-primary badge-sm">#{player.number}</span>
@@ -117,7 +115,7 @@ export default function Leaderboard() {
                   {player.total_tests}
                 </div>
                 <div className="col-span-1"></div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
